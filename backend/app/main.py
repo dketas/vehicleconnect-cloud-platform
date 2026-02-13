@@ -1,18 +1,22 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 from datetime import datetime
 import time
 
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+
 from .database import init_db, get_db, APIEvent
 from .schemas import EventCreate, EventResponse, StatusResponse
+
 
 app = FastAPI(
     title="VehicleConnect Cloud API",
     description="Backend for VehicleConnect Cloud Platform (connected vehicle monitoring)",
     version="1.0.0",
 )
+
 
 # For now we allow all origins (frontend will be on same origin anyway)
 app.add_middleware(
@@ -23,7 +27,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 START_TIME = time.time()
+
+
+# Prometheus Metrics (global counters and histograms)
+REQUEST_COUNT = Counter(
+    'api_requests_total',
+    'Total number of API requests',
+    ['method', 'endpoint', 'status']
+)
+
+
+REQUEST_LATENCY = Histogram(
+    'api_request_duration_seconds',
+    'API request latency in seconds',
+    ['method', 'endpoint']
+)
+
+
+ERROR_COUNT = Counter(
+    'api_errors_total',
+    'Total API errors',
+    ['endpoint']
+)
 
 
 @app.on_event("startup")
@@ -67,16 +94,32 @@ def get_status():
 def create_event(event: EventCreate, db: Session = Depends(get_db)):
     """
     Store a new API event in the database.
-
-    This simulates the backend receiving a request from a vehicle or client
-    and logging its details for monitoring.
+    Updates Prometheus metrics automatically.
     """
     try:
+        # Update Prometheus counters BEFORE saving to DB
+        REQUEST_COUNT.labels(
+            method=event.method,
+            endpoint=event.endpoint,
+            status=event.status_code
+        ).inc()
+        
+        # Track latency in seconds (Prometheus standard)
+        REQUEST_LATENCY.labels(
+            method=event.method,
+            endpoint=event.endpoint
+        ).observe(event.response_time_ms / 1000.0)
+        
+        if not event.success:
+            ERROR_COUNT.labels(endpoint=event.endpoint).inc()
+
+        # Save to database
         db_event = APIEvent(**event.model_dump())
         db.add(db_event)
         db.commit()
         db.refresh(db_event)
         return db_event
+        
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
@@ -102,6 +145,16 @@ def list_events(
         .all()
     )
     return events
+
+
+@app.get("/metrics")
+def prometheus_metrics():
+    """
+    Prometheus metrics endpoint.
+    Prometheus scrapes this every 15 seconds.
+    """
+    data = generate_latest()
+    return Response(content=data, media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/healthz", response_class=PlainTextResponse)
