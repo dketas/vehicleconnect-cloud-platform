@@ -8,3 +8,5 @@ prometheus-client==0.20.0
 pytest
 requests==2.31.0
 starlette==0.37.2
+pandas==2.1.4
+numpy==1.26.3

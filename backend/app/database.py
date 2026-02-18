@@ -35,6 +35,17 @@ class APIEvent(Base):
     client_id = Column(String, index=True)         # e.g. "vehicle_00123"
     error_message = Column(String, nullable=True)  # error text if any
     success = Column(Boolean, default=True)        # True if request succeeded
+class KPISnapshot(Base):
+    """
+    Stores calculated KPIs over time for trend analysis.
+    """
+    __tablename__ = "kpi_snapshots"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    kpi_name = Column(String, index=True)           # e.g. "avg_latency_ms"
+    kpi_value = Column(Float)                       # The calculated value
+    kpi_category = Column(String)                   # operational, security, delivery
 
 
 def init_db():

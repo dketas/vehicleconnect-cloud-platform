@@ -163,3 +163,7 @@ def healthz():
     Simple plain-text health endpoint (often used by Kubernetes).
     """
     return "ok"
+
+# Analytics routes
+from .analytics_routes import router as analytics_router
+app.include_router(analytics_router)
