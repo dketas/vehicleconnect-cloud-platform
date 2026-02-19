@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VehicleConnect Cloud Dashboard</title>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div>
+        <h1>VehicleConnect Cloud</h1>
+        <p>Connected Vehicle Operations Dashboard</p>
+      </div>
+      <div class="header-right">
+        <div id="last-update">Last updated: --</div>
+        <button id="refresh-btn">Refresh</button>
+      </div>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card" data-kpi="avg_latency_ms">
+        <h3>Avg Latency</h3>
+        <div class="kpi-value">--</div>
+      </div>
+      <div class="kpi-card" data-kpi="p95_latency_ms">
+        <h3>P95 Latency</h3>
+        <div class="kpi-value">--</div>
+      </div>
+      <div class="kpi-card" data-kpi="p99_latency_ms">
+        <h3>P99 Latency</h3>
+        <div class="kpi-value">--</div>
+      </div>
+      <div class="kpi-card" data-kpi="error_rate_percent">
+        <h3>Error Rate</h3>
+        <div class="kpi-value">--</div>
+      </div>
+      <div class="kpi-card" data-kpi="availability_percent">
+        <h3>Availability</h3>
+        <div class="kpi-value">--</div>
+      </div>
+      <div class="kpi-card" data-kpi="requests_per_minute">
+        <h3>Req/min</h3>
+        <div class="kpi-value">--</div>
+      </div>
+    </section>
+
+    <section class="charts-section">
+      <div class="chart-card">
+        <h2>Latency (Avg/P95/P99)</h2>
+        <div class="chart-wrap"><canvas id="latencyChart"></canvas></div>
+      </div>
+
+      <div class="chart-card">
+        <h2>Success vs Errors</h2>
+        <div class="chart-wrap"><canvas id="successChart"></canvas></div>
+      </div>
+    </section>
+
+    <footer>
+      <a href="/docs">API Docs</a> · <a href="/metrics">Prometheus</a>
+    </footer>
+  </div>
+
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
