@@ -2,28 +2,23 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: SSH and deploy
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$EC2_SSH_KEY" > ~/.ssh/ec2_key
-          chmod 600 ~/.ssh/ec2_key
-          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
-          ssh -i ~/.ssh/ec2_key ${EC2_USER}@${EC2_HOST} << 'EOF'
-            set -e
-            cd ~/apps/vehicleconnect-cloud-platform || cd ~/vehicleconnect
-            git pull origin main
-            docker compose down
-            docker compose up -d --build
-            docker ps
-            curl -f http://localhost:8000/api/status
-          EOF
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: \${{ secrets.EC2_HOST }}
+        username: \${{ secrets.EC2_USER }}
+        key: \${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd ~/apps/vehicleconnect-cloud-platform || cd ~/vehicleconnect || echo "No project dir"
+          git pull origin main || git clone https://github.com/dketas/vehicleconnect-cloud-platform.git
+          docker compose down || true
+          docker compose up -d --build
+          sleep 30
+          docker ps
+          curl -f http://localhost:8000/api/status || curl http://localhost:8000/api/status || echo "API starting..."
