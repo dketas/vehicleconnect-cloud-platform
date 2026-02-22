@@ -1,28 +1,24 @@
-cd ~/vehicleconnect-cloud-platform
-
-cat > .github/workflows/deploy-ec2.yml << 'EOF'
 name: Deploy to EC2
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: 63.178.201.188
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          cd ~/apps/vehicleconnect-cloud-platform || (git clone https://github.com/dketas/vehicleconnect-cloud-platform.git ~/apps/vehicleconnect-cloud-platform && cd ~/apps/vehicleconnect-cloud-platform)
-          git pull origin main
-          docker-compose down || true
-          docker-compose up -d --build
-          sleep 30
-          docker ps
-          curl -f http://localhost:8000/api/status || echo "API starting..."
-EOF
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 63.178.201.188
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/apps/vehicleconnect-cloud-platform || (git clone https://github.com/dketas/vehicleconnect-cloud-platform.git ~/apps/vehicleconnect-cloud-platform && cd ~/apps/vehicleconnect-cloud-platform)
+            git pull origin main
+            docker-compose down || true
+            docker-compose up -d --build
+            sleep 30
+            docker ps
+            curl -f http://localhost:8000/api/status || echo "API starting..."
