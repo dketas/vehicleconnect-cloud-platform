@@ -1,4 +1,3 @@
-
 # 🚗 VehicleConnect Cloud Platform
 
 Cloud-based DevOps platform that simulates **connected vehicle backend services** and provides **real-time operational, security, and delivery KPIs** via an interactive dashboard.
@@ -88,7 +87,7 @@ Full definitions in [`docs/kpi-definition.md`](docs/kpi-definition.md).
 
 ## 🏗 Project Structure
 
-```text
+````text
 vehicleconnect-cloud-platform/
 ├── backend/              # FastAPI backend + tests + Dockerfile
 ├── analytics/            # KPI calculator (pandas/numpy)
@@ -106,16 +105,12 @@ vehicleconnect-cloud-platform/
 ```bash
 git clone https://github.com/dketas/vehicleconnect-cloud-platform
 
-cd vehicleconnect-cloud-platform  
+cd vehicleconnect-cloud-platform
 docker compose up -d
 cd backend && python app/simulator.py  # 2min traffic
 
 Dashboard: http://localhost:8000/dashboard/
 
 
-## 📸 Screenshots
-**Dashboard:** ![Dashboard](docs/screenshots/dashboard-overview.jpg)  
-**API Status:** ![Status](docs/screenshots/api-status.jpg)
-**API Docs:** ![Swagger](docs/screenshots/api-docs.jpg)
-**Prometheus:** ![Metrics](docs/screenshots/prometheus-metrics.jpg)
 
+````
